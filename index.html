@@ -84,17 +84,17 @@
           at.setAttribute("negate", "false");
 
           at.setAttribute("look-at", "[gps-projected-camera]");
-          at.setAttribute("scale", "80 80 80");
-          at.setAttribute("position", "0 20 0");
+          at.setAttribute("scale", "40 40 40");
+          at.setAttribute("position", "0 10 0");
 
           at.setAttribute("gps-projected-entity-place", "latitude: " + ll[0] + "; longitude: " + ll[1] + ";");
           document.querySelector('a-scene').appendChild(at);
           if (r['カバー画像'] != "") {
             const ai = document.createElement('a-image');
             ai.setAttribute("src", r['カバー画像']);
-            ai.setAttribute("width", 50);
-            ai.setAttribute("height", 50);
-            ai.setAttribute("position", "0 50 0");
+            ai.setAttribute("width", 25);
+            ai.setAttribute("height", 25);
+            ai.setAttribute("position", "0 25 0");
             ai.setAttribute("look-at", "[gps-projected-camera]");
             ai.setAttribute("gps-projected-entity-place", "latitude: " + ll[0] + "; longitude: " + ll[1] + ";");
             document.querySelector('a-scene').appendChild(ai);
