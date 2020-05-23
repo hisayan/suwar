@@ -1,0 +1,8 @@
+{
+  "name": "suwar",
+  "version": "0.0.1",
+  "description": "諏訪テイクアウトマップ AR (beta)",
+  "main": "index.js",
+  "author": "Tomoyuki Hisada",
+  "license": "UNLICENSED"
+}

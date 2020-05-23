@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0" /> -->
+  <title>諏訪テイクアウトマップ AR (beta)</title>
+  <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+  <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios-jsonp/dist/index.min.js"></script>
+</head>
+
+<body style="margin: 0; overflow: hidden;">
+  <a-scene id="main" vr-mode-ui="enabled: false" embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+    <a-node>
+      <a-camera gps-projected-camera rotation-reader>
+      </a-camera>
+    </a-node>
+  </a-scene>
+  <script type="text/javascript">
+
+    var queryString = window.location.search;
+    var queryObject = new Object();
+    // area, demo = true
+    if (queryString) {
+      queryString = queryString.substring(1);
+      var parameters = queryString.split('&');
+
+      for (var i = 0; i < parameters.length; i++) {
+        var element = parameters[i].split('=');
+
+        var paramName = decodeURIComponent(element[0]);
+        var paramValue = decodeURIComponent(element[1]);
+
+        queryObject[paramName] = paramValue;
+      }
+    }
+
+    // TODO: for demo
+    if (queryObject['demo']) {
+      console.log(queryObject);
+      const camera = document.querySelector('a-camera');
+      // またりば
+      // camera.setAttribute("simulateLatitude", 35.915581);
+      // camera.setAttribute("simulateLongitude", 138.241983);
+      // 京平
+      // camera.setAttribute("simulateLatitude", "35.910861");
+      // camera.setAttribute("simulateLongitude", "138.241937");
+      queryObject['area'] = "富士見・原村";
+    }
+
+    // ここに GET 引数を付けたら、cross site
+    if (queryObject['area'] === undefined) queryObject['area'] = "";
+    axios.get('https://script.google.com/macros/s/AKfycbygPVKiAnX6PO0pHFnpEOdEBTLAWFm_KwEMR1Njp3WR4HgmE-BO/exec'
+      , {
+        adapter: axiosJsonpAdapter, params: {
+          "area": queryObject['area'],
+          "callback": "addPoint"
+        }
+      }
+    )
+
+    function addPoint(response) {
+      // handle success
+      console.log(response);
+
+      response.forEach(function (r) {
+        const latlon = r['緯度経度'];
+        const ll = latlon.split(',');
+        if (ll.length == 2) {
+          const at = document.createElement('a-text');
+
+          // 半角スペースが mplus だと文字化けする？ その対応
+          const n = r['店名'].replace(/  /g, ' ').replace(/ /g, '_'); // アンダースコアも非表示になる。とりあえず。
+          at.setAttribute("value", n);
+          at.setAttribute("align", "center");
+
+          at.setAttribute("font", "/fonts/mplus-msdf.json");
+          at.setAttribute("font-image", "/fonts/mplus-msdf.png");
+          at.setAttribute("negate", "false");
+
+          at.setAttribute("look-at", "[gps-projected-camera]");
+          at.setAttribute("scale", "80 80 80");
+          at.setAttribute("position", "0 20 0");
+
+          at.setAttribute("gps-projected-entity-place", "latitude: " + ll[0] + "; longitude: " + ll[1] + ";");
+          document.querySelector('a-scene').appendChild(at);
+          if (r['カバー画像'] != "") {
+            const ai = document.createElement('a-image');
+            ai.setAttribute("src", r['カバー画像']);
+            ai.setAttribute("width", 50);
+            ai.setAttribute("height", 50);
+            ai.setAttribute("position", "0 50 0");
+            ai.setAttribute("look-at", "[gps-projected-camera]");
+            ai.setAttribute("gps-projected-entity-place", "latitude: " + ll[0] + "; longitude: " + ll[1] + ";");
+            document.querySelector('a-scene').appendChild(ai);
+          }
+
+        }
+      });
+
+      const anode = document.querySelector('a-node');
+      anode.load();
+    }
+
+  </script>
+</body>
+
+</html>
