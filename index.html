@@ -17,8 +17,7 @@
 </head>
 
 <body style="margin: 0; overflow: hidden;">
-  <a-scene id="main" vr-mode-ui="enabled: false" embedded
-    arjs='sourceType: webcam; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false;'>
+  <a-scene id="main" vr-mode-ui="enabled: false" embedded arjs='sourceType: webcam; debugUIEnabled: false;'>
     <a-text value="富士見町役場" align="center" font="/fonts/mplus-msdf.json" font-image="/fonts/mplus-msdf.png"
       negate="false" look-at="[gps-projected-camera]" scale="50 50 50" position="0 20 0"
       gps-projected-entity-place="latitude: 35.914658; longitude: 138.240745;"></a-text>
@@ -47,26 +46,28 @@
     }
 
     // TODO: for demo
+    let simulateLatLon = "simulateLatitude: 0; simulateLongitude: 0;";
     if (queryObject['demo']) {
-      console.log(queryObject);
-      const camera = document.querySelector('a-camera');
       switch (queryObject['demo']) {
         case '京平':
           queryObject['area'] = "富士見・原村";
-          camera.setAttribute("gps-projected-camera", "simulateLatitude: 35.910861; simulateLongitude: 138.241937;");
+          simulateLatLon = "simulateLatitude: 35.910861; simulateLongitude: 138.241937;";
           break;
         case '茅野駅':
           queryObject['area'] = "茅野";
-          camera.setAttribute("gps-projected-camera", "simulateLatitude: 35.994273; simulateLongitude: 138.152197;");
+          simulateLatLon = "simulateLatitude: 35.994273; simulateLongitude: 138.152197;";
           break;
         case 'またりば':
         default:
           queryObject['area'] = "富士見・原村";
-          camera.setAttribute("gps-projected-camera", "simulateLatitude: 35.915581; simulateLongitude: 138.241983;");
+          simulateLatLon = "simulateLatitude: 35.915581; simulateLongitude: 138.241983;";
       }
     }
+    const camera = document.querySelector('a-camera');
+    // maxDistance に ProjectedCameda は 非対応
+    camera.setAttribute("gps-projected-camera", `${simulateLatLon} minDistance: 3;`);
 
-    // ここに GET 引数を付けたら、cross site
+    // ここに GET 引数を付けたら、CROS Error なので JSONP にした
     if (queryObject['area'] === undefined) queryObject['area'] = "";
     axios.get('https://script.google.com/macros/s/AKfycbygPVKiAnX6PO0pHFnpEOdEBTLAWFm_KwEMR1Njp3WR4HgmE-BO/exec'
       , {
@@ -76,7 +77,6 @@
         }
       }
     )
-
 
     function addPoint(response) {
       // handle success
@@ -117,6 +117,8 @@
         }
       });
 
+      // window.dispatchEvent(new CustomEvent('gps-camera-update-position', { detail: { position: this.currentCoords, origin: this.originCoordsProjected } }));
+      // this.el.dispatchEvent(new CustomEvent('gps-entity-place-update-positon', { detail: { distance: distanceForMsg } }));
       const anode = document.querySelector('a-node');
       anode.load();
 
