@@ -8,14 +8,20 @@
   <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0" /> -->
   <title>諏訪テイクアウトマップ AR (beta)</title>
   <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
-  <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/aframe-look-at-component@1.0.0/dist/aframe-look-at-component.min.js"></script>
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios-jsonp/dist/index.min.js"></script>
 </head>
 
 <body style="margin: 0; overflow: hidden;">
-  <a-scene id="main" vr-mode-ui="enabled: false" embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+  <a-scene id="main" vr-mode-ui="enabled: false" embedded
+    arjs='sourceType: webcam; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false;'>
+    <a-text value="富士見町役場" align="center" font="/fonts/mplus-msdf.json" font-image="/fonts/mplus-msdf.png"
+      negate="false" look-at="[gps-projected-camera]" scale="50 50 50" position="0 20 0"
+      gps-projected-entity-place="latitude: 35.914658; longitude: 138.240745;"></a-text>
     <a-node>
       <a-camera gps-projected-camera rotation-reader>
       </a-camera>
@@ -44,13 +50,20 @@
     if (queryObject['demo']) {
       console.log(queryObject);
       const camera = document.querySelector('a-camera');
-      // またりば
-      // camera.setAttribute("simulateLatitude", 35.915581);
-      // camera.setAttribute("simulateLongitude", 138.241983);
-      // 京平
-      // camera.setAttribute("simulateLatitude", "35.910861");
-      // camera.setAttribute("simulateLongitude", "138.241937");
-      queryObject['area'] = "富士見・原村";
+      switch (queryObject['demo']) {
+        case '京平':
+          queryObject['area'] = "富士見・原村";
+          camera.setAttribute("gps-projected-camera", "simulateLatitude: 35.910861; simulateLongitude: 138.241937;");
+          break;
+        case '茅野駅':
+          queryObject['area'] = "茅野";
+          camera.setAttribute("gps-projected-camera", "simulateLatitude: 35.994273; simulateLongitude: 138.152197;");
+          break;
+        case 'またりば':
+        default:
+          queryObject['area'] = "富士見・原村";
+          camera.setAttribute("gps-projected-camera", "simulateLatitude: 35.915581; simulateLongitude: 138.241983;");
+      }
     }
 
     // ここに GET 引数を付けたら、cross site
@@ -63,6 +76,7 @@
         }
       }
     )
+
 
     function addPoint(response) {
       // handle success
@@ -96,7 +110,7 @@
             ai.setAttribute("height", 25);
             ai.setAttribute("position", "0 25 0");
             ai.setAttribute("look-at", "[gps-projected-camera]");
-            ai.setAttribute("gps-projected-entity-place", "latitude: " + ll[0] + "; longitude: " + ll[1] + ";");
+            ai.setAttribute("gps-projected-entity-place", `latitude: ${ll[0]}; longitude: ${ll[1]};`);
             document.querySelector('a-scene').appendChild(ai);
           }
 
@@ -105,6 +119,7 @@
 
       const anode = document.querySelector('a-node');
       anode.load();
+
     }
 
   </script>
